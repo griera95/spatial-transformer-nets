@@ -1,0 +1,5 @@
+data:
+  batch_size_train: 64
+  batch_size_test: 64
+model:
+  epochs: 10
