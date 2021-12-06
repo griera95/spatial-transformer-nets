@@ -7,23 +7,23 @@ from torchinfo import summary
 
 def cnn_output_dim(input_dim, kernel_size, pooling_size, pooling_stride):
     """Calculate output dimension of the feature maps of convolutional layer with pooling"""
-    h, w = input_dim
-    kernel_h, kernel_w = kernel_size
-    pooling_h, pooling_w = pooling_size
+    w, h = input_dim
+    kernel_w, kernel_h = kernel_size
+    pooling_w, pooling_h = pooling_size
 
-    conv_h = h - kernel_h + 1
     conv_w = w - kernel_w + 1
+    conv_h = h - kernel_h + 1
 
-    out_h = (conv_h-pooling_h) // pooling_stride + 1
     out_w = (conv_w-pooling_w) // pooling_stride + 1
+    out_h = (conv_h-pooling_h) // pooling_stride + 1
 
-    return (out_h, out_w)
+    return (out_w, out_h)
 
 def localization_output_dim(cfg: DictConfig):
     """Calculate output dimension of the convolutional part of localization"""
 
     # first conv block
-    conv1_out_h, conv1_out_w = cnn_output_dim(
+    conv1_out_w, conv1_out_h = cnn_output_dim(
         (cfg.data.height, cfg.data.width),
         (cfg.model.stn.kernel1_size, cfg.model.stn.kernel1_size), 
         (cfg.model.stn.pooling1_size, cfg.model.stn.pooling1_size),
@@ -31,14 +31,14 @@ def localization_output_dim(cfg: DictConfig):
     )
 
     # second conv block
-    conv2_out_h, conv2_out_w = cnn_output_dim(
-        (conv1_out_h, conv1_out_w),
+    conv2_out_w, conv2_out_h = cnn_output_dim(
+        (conv1_out_w, conv1_out_h),
         (cfg.model.stn.kernel2_size, cfg.model.stn.kernel2_size), 
         (cfg.model.stn.pooling2_size, cfg.model.stn.pooling2_size), 
         cfg.model.stn.pooling2_stride
     )
 
-    return (conv2_out_h, conv2_out_w)
+    return (conv2_out_w, conv2_out_h)
 
 class AddCoords(nn.Module):
     def __init__(self, with_r=False, skiptile=False):
@@ -146,10 +146,10 @@ class STN(nn.Module):
         )
 
         # calculate output dimension of convolutional localization part
-        h, w = localization_output_dim(cfg)
+        w, h = localization_output_dim(cfg)
 
         # number of neurons of flattened feature maps
-        self.linear_in = cfg.model.stn.conv2_channels * h * w
+        self.linear_in = cfg.model.stn.conv2_channels * w * h
 
         # Regressor for the 3 * 2 affine matrix
         self.fc_loc = nn.Sequential(
