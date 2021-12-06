@@ -2,6 +2,7 @@ from omegaconf import DictConfig
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchinfo import summary
 
 
 def cnn_output_dim(input_dim, kernel_size, pooling_size, pooling_stride):
@@ -110,4 +111,8 @@ def get_model(cfg):
     """Generate model with cuda support if available"""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    return STN(cfg).to(device)
+    model = STN(cfg).to(device)
+
+    summary(model, (cfg.data.batch_size_train, 1, cfg.data.height, cfg.data.width))
+
+    return model
