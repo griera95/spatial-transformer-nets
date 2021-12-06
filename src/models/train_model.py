@@ -8,12 +8,18 @@ def train(cfg, model, train_loader):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    losses = []
+
     for i in range(1, cfg.model.epochs + 1):
-        train_step(model, train_loader, optimizer, device, i)
+        losses.append(train_step(model, train_loader, optimizer, device, i))
+
+    return losses
     
 
 
 def train_step(model, train_loader, optimizer, device, epoch):
+    step_loss = 0.
+
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
@@ -27,3 +33,9 @@ def train_step(model, train_loader, optimizer, device, epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
+        
+        step_loss += loss.item()
+    
+    step_loss /= (batch_idx+1)
+
+    return step_loss
