@@ -5,7 +5,7 @@ data:
   batch_size_test: 64
   n_channels: 1
 model:
-  epochs: 10
+  epochs: 50
   lr: 0.01
   conv1_channels: 10
   conv2_channels: 20
@@ -13,7 +13,7 @@ model:
   kernel2_size: 5
   dense1_dim: 50
   dense2_dim: 10
-  coordconv: true
+  coordconv: false
   stn:
     conv1_channels: 8
     conv2_channels: 10
