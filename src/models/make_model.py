@@ -109,6 +109,6 @@ def get_model(cfg):
 
     model = STN(cfg).to(device)
 
-    print(summary(model, (cfg.data.batch_size_train, 1, cfg.data.height, cfg.data.width)))
+    summary(model, (cfg.data.batch_size_train, 1, cfg.data.height, cfg.data.width))
 
     return model
