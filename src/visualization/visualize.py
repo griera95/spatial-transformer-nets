@@ -8,6 +8,6 @@ def print_results(cm, accuracy, test_loss):
     plt.title(f'Confusion Matrix. Accuracy: {100 * accuracy}%, test loss: {test_loss:.6f}')
     plt.xlabel('Predicted label')
     plt.ylabel('True label')
+    plt.savefig('confusion_matrix.png')
     plt.show()
-    plt.savefig('confusion_matrix.png', dpi=100, bbox_inches='tight')
     plt.close()
