@@ -16,7 +16,7 @@ def test(model, test_loader):
             output = model(data)
 
             # sum up batch loss
-            test_loss += F.nll_loss(output, target, size_average=False).item()
+            test_loss += F.nll_loss(output, target, reduction='sum').item()
             # get the index of the max log-probability
             pred = output.max(1, keepdim=True)[1]
             cms.append(confusion_matrix(torch.flatten(target), torch.flatten(pred), labels=list(range(0, 10))))
