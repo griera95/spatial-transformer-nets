@@ -11,3 +11,14 @@ def print_results(cm, accuracy, test_loss):
     plt.savefig('confusion_matrix.png')
     plt.show()
     plt.close()
+
+def print_training_evolution(losses):
+    fig = plt.figure(figsize=(8, 6))
+    plt.clf()
+    plt.title(f'Training loss evolution')
+    plt.xlabel('epoch')
+    plt.ylabel('training loss')
+    plt.plot(losses)
+    plt.savefig('training_evolution.png')
+    plt.show()
+    plt.close()
