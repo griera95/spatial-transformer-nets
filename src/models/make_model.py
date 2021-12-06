@@ -125,22 +125,43 @@ class STN(nn.Module):
         ConvLayer = CoordConv if cfg.model.coordconv else nn.Conv2d
 
         # if coordconv selected, input n_channels is 2 more
-        n_channels_in = cfg.data.n_channels + 2 if cfg.model.coordconv else cfg.data.n_channels
-        n_channels2 = cfg.model.conv1_channels + 2 if cfg.model.coordconv else cfg.model.conv1_channels
-        n_channels2_loc = cfg.model.stn.conv1_channels + 2 if cfg.model.coordconv else cfg.model.stn.conv1_channels
+        n_channels_in = cfg.data.n_channels
+        n_channels2 = cfg.model.conv1_channels
+        n_channels2_loc = cfg.model.stn.conv1_channels
 
-        self.conv1 = ConvLayer(in_channels=n_channels_in, out_channels=cfg.model.conv1_channels, kernel_size=cfg.model.kernel1_size)
-        self.conv2 = ConvLayer(in_channels=n_channels2, out_channels=cfg.model.conv2_channels, kernel_size=cfg.model.kernel2_size)
+        if cfg.model.coordconv:
+            n_channels_in += 2
+            n_channels2 += 2
+            n_channels2_loc += 2
+
+        self.conv1 = ConvLayer(
+            in_channels=n_channels_in, 
+            out_channels=cfg.model.conv1_channels, 
+            kernel_size=cfg.model.kernel1_size
+        )
+        self.conv2 = ConvLayer(
+            in_channels=n_channels2, 
+            out_channels=cfg.model.conv2_channels, 
+            kernel_size=cfg.model.kernel2_size
+        )
         self.conv2_drop = nn.Dropout2d()
         self.fc1 = nn.Linear(320, cfg.model.dense1_dim)
         self.fc2 = nn.Linear(cfg.model.dense1_dim, cfg.model.dense2_dim)
 
         # Spatial transformer localization-network
         self.localization = nn.Sequential(
-            ConvLayer(in_channels=n_channels_in, out_channels=cfg.model.stn.conv1_channels, kernel_size=cfg.model.stn.kernel1_size),
+            ConvLayer(
+                in_channels=n_channels_in, 
+                out_channels=cfg.model.stn.conv1_channels, 
+                kernel_size=cfg.model.stn.kernel1_size
+            ),
             nn.MaxPool2d(cfg.model.stn.pooling1_size, stride=cfg.model.stn.pooling1_stride),
             nn.ReLU(True),
-            ConvLayer(in_channels=n_channels2_loc, out_channels=cfg.model.stn.conv2_channels, kernel_size=cfg.model.stn.kernel2_size),
+            ConvLayer(
+                in_channels=n_channels2_loc, 
+                out_channels=cfg.model.stn.conv2_channels, 
+                kernel_size=cfg.model.stn.kernel2_size
+            ),
             nn.MaxPool2d(cfg.model.stn.pooling2_size, stride=cfg.model.stn.pooling2_stride),
             nn.ReLU(True)
         )
