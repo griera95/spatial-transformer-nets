@@ -32,4 +32,4 @@ def test(model, test_loader):
             cm = cm + m
         cm
 
-    return cm, accuracy
+    return cm, accuracy, test_loss
