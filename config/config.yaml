@@ -13,6 +13,7 @@ model:
   kernel2_size: 5
   dense1_dim: 50
   dense2_dim: 10
+  coordconv: true
   stn:
     conv1_channels: 8
     conv2_channels: 10
