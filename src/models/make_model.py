@@ -4,30 +4,77 @@ import torch.nn as nn
 import torch.functional as F
 
 
+def cnn_output_dim(input_dim, kernel_size, pooling_size, pooling_stride):
+    """Calculate output dimension of the feature maps of convolutional layer with pooling"""
+    h, w = input_dim
+    kernel_h, kernel_w = kernel_size
+    pooling_h, pooling_w = pooling_size
+
+    conv_h = h - kernel_h + 1
+    conv_w = w - kernel_w + 1
+
+    out_h = (conv_h-pooling_h) // pooling_stride + 1
+    out_w = (conv_w-pooling_w) // pooling_stride + 1
+
+    return (out_h, out_w)
+
+def localization_output_dim(cfg: DictConfig):
+    """Calculate output dimension of the convolutional part of localization"""
+
+    # first conv block
+    conv1_out_h, conv1_out_w = cnn_output_dim(
+        (cfg.data.height, cfg.data.width),
+        (cfg.model.stn.kernel1_size, cfg.model.stn.kernel1_size), 
+        (cfg.model.stn.pooling1_size, cfg.model.stn.pooling1_size),
+        cfg.model.stn.pooling1_stride
+    )
+
+    # second conv block
+    conv2_out_h, conv2_out_w = cnn_output_dim(
+        (conv1_out_h, conv1_out_w),
+        (cfg.model.stn.kernel2_size, cfg.model.stn.kernel2_size), 
+        (cfg.model.stn.pooling2_size, cfg.model.stn.pooling2_size), 
+        cfg.model.stn.pooling2_stride
+    )
+
+    return (conv2_out_h, conv2_out_w)
+
+
 class STN(nn.Module):
+    """Spatial Transformer Network"""
     def __init__(self, cfg: DictConfig):
         super(STN, self).__init__()
-        self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
-        self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
+        self.conv1 = nn.Conv2d(cfg.data.n_channels, cfg.model.conv1_channels, cfg.model.kernel1_size)
+        self.conv2 = nn.Conv2d(cfg.model.conv1_channels, cfg.model.conv2_channels, cfg.model.kernel2_size)
         self.conv2_drop = nn.Dropout2d()
-        self.fc1 = nn.Linear(320, 50)
-        self.fc2 = nn.Linear(50, 10)
+        self.fc1 = nn.Linear(320, cfg.model.dense1_dim)
+        self.fc2 = nn.Linear(cfg.model.dense1_dim, cfg.model.dense2_dim)
 
         # Spatial transformer localization-network
         self.localization = nn.Sequential(
-            nn.Conv2d(1, 8, kernel_size=7),
-            nn.MaxPool2d(2, stride=2),
+            nn.Conv2d(1, cfg.model.stn.conv1_channels, kernel_size=cfg.model.stn.kernel1_size),
+            nn.MaxPool2d(cfg.model.stn.pooling1_size, stride=cfg.model.stn.pooling1_stride),
             nn.ReLU(True),
-            nn.Conv2d(8, 10, kernel_size=5),
-            nn.MaxPool2d(2, stride=2),
+            nn.Conv2d(cfg.model.stn.conv1_channels, cfg.model.stn.conv2_channels, kernel_size=cfg.model.stn.kernel2_size),
+            nn.MaxPool2d(cfg.model.stn.pooling2_size, stride=cfg.model.stn.pooling2_stride),
             nn.ReLU(True)
         )
 
+        # calculate output dimension of convolutional localization part
+        h, w = localization_output_dim(cfg)
+
+        print(h, w)
+
+        # number of neurons of flattened feature maps
+        self.linear_in = cfg.model.stn.conv2_channels * h * w
+
+        print(self.linear_in)
+
         # Regressor for the 3 * 2 affine matrix
         self.fc_loc = nn.Sequential(
-            nn.Linear(10 * 3 * 3, 32),
+            nn.Linear(self.linear_in, cfg.model.stn.lin_size),
             nn.ReLU(True),
-            nn.Linear(32, 3 * 2)
+            nn.Linear(cfg.model.stn.lin_size, 3 * 2)
         )
 
         # Initialize the weights/bias with identity transformation
@@ -37,7 +84,7 @@ class STN(nn.Module):
     # Spatial transformer network forward function
     def stn(self, x):
         xs = self.localization(x)
-        xs = xs.view(-1, 10 * 3 * 3)
+        xs = xs.view(-1, self.linear_in)
         theta = self.fc_loc(xs)
         theta = theta.view(-1, 2, 3)
 
@@ -59,8 +106,8 @@ class STN(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
-def get_model():
-    # select CUDA if available
+def get_model(cfg):
+    """Generate model with cuda support if available"""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    return STN().to(device)
+    return STN(cfg).to(device)
