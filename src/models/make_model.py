@@ -1,7 +1,7 @@
 from omegaconf import DictConfig
 import torch
 import torch.nn as nn
-import torch.functional as F
+import torch.nn.functional as F
 
 
 def cnn_output_dim(input_dim, kernel_size, pooling_size, pooling_stride):
