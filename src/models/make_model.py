@@ -121,7 +121,10 @@ class STN(nn.Module):
     def __init__(self, cfg: DictConfig):
         super(STN, self).__init__()
 
+        # select coordconv or normal convolution depending on config
         ConvLayer = CoordConv if cfg.model.coordconv else nn.Conv2d
+
+        # if coordconv selected, input n_channels is 2 more
         n_channels_in = cfg.data.n_channels + 2 if cfg.model.coordconv else cfg.data.n_channels
         n_channels2 = cfg.model.conv1_channels + 2 if cfg.model.coordconv else cfg.model.conv1_channels
         n_channels2_loc = cfg.model.stn.conv1_channels + 2 if cfg.model.coordconv else cfg.model.stn.conv1_channels
@@ -166,7 +169,10 @@ class STN(nn.Module):
         theta = self.fc_loc(xs)
         theta = theta.view(-1, 2, 3)
 
+        # generate affine grid for coordinate transformation
         grid = F.affine_grid(theta, x.size())
+
+        # spatial sampling of points based on grid
         x = F.grid_sample(x, grid)
 
         return x
