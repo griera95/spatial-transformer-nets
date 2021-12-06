@@ -9,7 +9,7 @@ def train(cfg, model, train_loader):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     for i in range(1, cfg.model.epochs + 1):
-        train(model, train_loader, optimizer, device, i)
+        train_step(model, train_loader, optimizer, device, i)
     
 
 
