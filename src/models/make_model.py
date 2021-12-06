@@ -41,13 +41,11 @@ def localization_output_dim(cfg: DictConfig):
     return (conv2_out_h, conv2_out_w)
 
 class AddCoords(nn.Module):
-    def __init__(self, x_dim=64, y_dim=64, with_r=False, skiptile=False):
+    def __init__(self, with_r=False, skiptile=False):
         """
         In the constructor we 
         """
         super(AddCoords, self).__init__()
-        self.x_dim = x_dim
-        self.y_dim = y_dim
         self.with_r = with_r
         self.skiptile = skiptile
 
@@ -58,16 +56,19 @@ class AddCoords(nn.Module):
         In the second case, skiptile, just concat
         """
 
+        x_dim = x.shape[2]
+        y_dim = x.shape[3]
+
         x = x.permute((0,2,3,1))    # put channels into second dimension
 
         if not self.skiptile:
-            x = torch.tile(x, (1, self.x_dim, self.y_dim, 1))   # (batch, 64, 64, 2)
+            x = torch.tile(x, (1, x_dim, y_dim, 1))   # (batch, 64, 64, 2)
 
         batch_size_tensor = x.shape[0]                          # get batch size
 
-        xx_ones = torch.ones([batch_size_tensor, self.x_dim])   # e.g. (batch, 64)
+        xx_ones = torch.ones([batch_size_tensor, x_dim])   # e.g. (batch, 64)
         xx_ones = xx_ones.unsqueeze(-1)                         # e.g. (batch, 64, 1)
-        xx_range = torch.tile(torch.arange(self.y_dim).unsqueeze(0), 
+        xx_range = torch.tile(torch.arange(y_dim).unsqueeze(0), 
                             (batch_size_tensor, 1))             # e.g. (batch, 64)
         xx_range = xx_range.unsqueeze(1).float()                # e.g. (batch, 1, 64)
 
@@ -75,17 +76,17 @@ class AddCoords(nn.Module):
         xx_channel = xx_channel.unsqueeze(-1)                   # e.g. (batch, 64, 64, 1)
 
 
-        yy_ones = torch.ones([batch_size_tensor, self.y_dim])   # e.g. (batch, 64)
+        yy_ones = torch.ones([batch_size_tensor, y_dim])   # e.g. (batch, 64)
         yy_ones = yy_ones.unsqueeze(1)                          # e.g. (batch, 1, 64)
-        yy_range = torch.tile(torch.arange(self.x_dim).unsqueeze(0),
+        yy_range = torch.tile(torch.arange(x_dim).unsqueeze(0),
                               (batch_size_tensor, 1))             # (batch, 64)
         yy_range = yy_range.unsqueeze(-1).float()               # e.g. (batch, 64, 1)
 
         yy_channel = torch.matmul(yy_range, yy_ones)            # e.g. (batch, 64, 64)
         yy_channel = yy_channel.unsqueeze(-1)                   # e.g. (batch, 64, 64, 1)
 
-        xx_channel = xx_channel / (self.x_dim - 1)
-        yy_channel = yy_channel / (self.y_dim - 1)
+        xx_channel = xx_channel / (x_dim - 1)
+        yy_channel = yy_channel / (y_dim - 1)
         xx_channel = xx_channel*2 - 1                           # [-1,1]
         yy_channel = yy_channel*2 - 1
 
@@ -104,12 +105,9 @@ class AddCoords(nn.Module):
 
 class CoordConv(nn.Module):
     """CoordConv layer as in the paper."""
-    def __init__(self, x_dim, y_dim, with_r=False, *args,  **kwargs):
+    def __init__(self, with_r=False, *args,  **kwargs):
         super(CoordConv, self).__init__()
-        self.addcoords = AddCoords(x_dim=x_dim, 
-                                   y_dim=y_dim, 
-                                   with_r=with_r,
-                                   skiptile=True)
+        self.addcoords = AddCoords(with_r=with_r, skiptile=True)
         self.conv = nn.Conv2d(*args, **kwargs)
 
     def forward(self, x):
