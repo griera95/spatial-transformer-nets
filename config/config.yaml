@@ -1,5 +1,24 @@
 data:
+  height: 28
+  width: 28
   batch_size_train: 64
   batch_size_test: 64
+  n_channels: 1
 model:
   epochs: 10
+  conv1_channels: 10
+  conv2_channels: 20
+  kernel1_size: 5
+  kernel2_size: 5
+  dense1_dim: 50
+  dense2_dim: 10
+  stn:
+    conv1_channels: 8
+    conv2_channels: 10
+    pooling1_size: 2
+    pooling2_size: 2
+    pooling1_stride: 2
+    pooling2_stride: 2
+    kernel1_size: 7
+    kernel2_size: 5
+    lin_size: 32
