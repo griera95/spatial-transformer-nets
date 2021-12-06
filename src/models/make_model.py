@@ -64,12 +64,8 @@ class STN(nn.Module):
         # calculate output dimension of convolutional localization part
         h, w = localization_output_dim(cfg)
 
-        print(h, w)
-
         # number of neurons of flattened feature maps
         self.linear_in = cfg.model.stn.conv2_channels * h * w
-
-        print(self.linear_in)
 
         # Regressor for the 3 * 2 affine matrix
         self.fc_loc = nn.Sequential(
