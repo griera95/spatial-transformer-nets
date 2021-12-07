@@ -11,6 +11,8 @@ model:
   conv2_channels: 20
   kernel1_size: 5
   kernel2_size: 5
+  pooling1_size: 2
+  pooling2_size: 2
   dense1_dim: 50
   dense2_dim: 10
   coordconv: false
