@@ -15,7 +15,7 @@ def print_results(cm, accuracy, test_loss):
     res = sns.heatmap(cm, annot=True, fmt='d')
 
     # annotate
-    plt.title(f'Confusion Matrix. Accuracy: {100 * accuracy}%, test loss: {test_loss:.6f}')
+    plt.title(f'Confusion Matrix. Accuracy: {(100 * accuracy):.6f}%, test loss: {test_loss:.6f}')
     plt.xlabel('Predicted label')
     plt.ylabel('True label')
 
