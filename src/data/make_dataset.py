@@ -33,10 +33,39 @@ def get_mnist_dataset(partition):
         transform=mnist_transform()
     )
 
-def get_dataloader(cfg: DictConfig, partition, shuffle=True):
+def get_mnist_dataloader(cfg: DictConfig, partition, shuffle=True):
     """Get dataloader of train or test set"""
     return torch.utils.data.DataLoader(
         get_mnist_dataset(partition),
+        batch_size=cfg.data.batch_size_train if partition == 'train' else cfg.data.batch_size_test,
+        shuffle=shuffle,
+        num_workers=4
+        )
+
+def cifar10_transform():
+    return transforms.Compose(
+        [transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
+def get_cifar10_dataset(partition):
+    """Download CIFAR10 dataset (if not already locally available)"""
+
+    if partition not in ['train', 'test']:
+        print('argument must be one of either train or test')
+        return
+
+
+    return datasets.CIFAR10(
+        root='../data', 
+        train= True if partition == 'train' else False, 
+        download=True, 
+        transform=cifar10_transform()
+    )
+
+def get_cifar10_dataloader(cfg: DictConfig, partition, shuffle=True):
+    """Get dataloader of train or test set"""
+    return torch.utils.data.DataLoader(
+        get_cifar10_dataset(partition),
         batch_size=cfg.data.batch_size_train if partition == 'train' else cfg.data.batch_size_test,
         shuffle=shuffle,
         num_workers=4
