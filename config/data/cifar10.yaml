@@ -1,0 +1,6 @@
+name: cifar10
+height: 32
+width: 32
+batch_size_train: 4
+batch_size_test: 4
+n_channels: 3

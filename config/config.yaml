@@ -1,9 +1,5 @@
-data:
-  height: 28
-  width: 28
-  batch_size_train: 64
-  batch_size_test: 64
-  n_channels: 1
+defaults:
+  - data/mnist
 model:
   epochs: 50
   lr: 0.01
