@@ -1,7 +1,7 @@
 from omegaconf import DictConfig, OmegaConf
 import hydra
 
-from src.data.make_dataset import get_dataloader
+from src.data.make_dataset import get_mnist_dataloader, get_cifar10_dataloader
 from src.models.make_model import get_model
 from src.models.train_model import train
 from src.models.test_model import test
@@ -14,8 +14,12 @@ def main(cfg: DictConfig) -> None:
     print('\n------CREATING TRAINING AND TEST DATASET------\n')
 
     # get loaders for training and test datasets
-    train_loader = get_dataloader(cfg, 'train')
-    test_loader = get_dataloader(cfg, 'test')
+    if cfg.data.name == 'mnist':
+        train_loader = get_mnist_dataloader(cfg, 'train')
+        test_loader = get_mnist_dataloader(cfg, 'test')
+    else:
+        train_loader = get_cifar10_dataloader(cfg, 'train')
+        test_loader = get_cifar10_dataloader(cfg, 'test')
 
     print('\n------GENERATING MODEL------\n')
 
