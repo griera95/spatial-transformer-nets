@@ -40,6 +40,27 @@ def localization_output_dim(cfg: DictConfig):
 
     return (conv2_out_w, conv2_out_h)
 
+def stn_conv_output_dim(cfg: DictConfig):
+    """Calculate output dimension of the conv part of stn (not localization)"""
+
+    # first conv block
+    conv1_out_w, conv1_out_h = cnn_output_dim(
+        (cfg.data.height, cfg.data.width),
+        (cfg.model.kernel1_size, cfg.model.kernel1_size), 
+        (cfg.model.pooling1_size, cfg.model.pooling1_size),
+        cfg.model.pooling1_size
+    )
+
+    # second conv block
+    conv2_out_w, conv2_out_h = cnn_output_dim(
+        (conv1_out_w, conv1_out_h),
+        (cfg.model.kernel2_size, cfg.model.kernel2_size), 
+        (cfg.model.pooling2_size, cfg.model.pooling2_size), 
+        cfg.model.pooling2_size
+    )
+
+    return (conv2_out_w, conv2_out_h)
+
 class AddCoords(nn.Module):
     def __init__(self, with_r=False, skiptile=False):
         """
@@ -145,7 +166,17 @@ class STN(nn.Module):
             kernel_size=cfg.model.kernel2_size
         )
         self.conv2_drop = nn.Dropout2d()
-        self.fc1 = nn.Linear(320, cfg.model.dense1_dim)
+
+        self.pooling1_size = cfg.model.pooling1_size
+        self.pooling2_size = cfg.model.pooling2_size
+
+        # calculate output dimension of convolutional part
+        w, h = stn_conv_output_dim(cfg)
+
+        # number of neurons of flattened feature maps
+        self.conv_out = cfg.model.conv2_channels * w * h
+
+        self.fc1 = nn.Linear(self.conv_out, cfg.model.dense1_dim)
         self.fc2 = nn.Linear(cfg.model.dense1_dim, cfg.model.dense2_dim)
 
         # Spatial transformer localization-network
@@ -203,9 +234,9 @@ class STN(nn.Module):
         x = self.stn(x)
 
         # Perform the usual forward pass
-        x = F.relu(F.max_pool2d(self.conv1(x), 2))
-        x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
-        x = x.view(-1, 320)
+        x = F.relu(F.max_pool2d(self.conv1(x), self.pooling1_size))
+        x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), self.pooling2_size))
+        x = x.view(-1, self.conv_out)
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
