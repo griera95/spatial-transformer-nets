@@ -1,5 +1,6 @@
 from omegaconf import DictConfig, OmegaConf
 import hydra
+import pickle
 
 from src.data.make_dataset import get_mnist_dataloader, get_cifar10_dataloader
 from src.models.make_model import get_model
@@ -31,6 +32,10 @@ def main(cfg: DictConfig) -> None:
     # train the model and get loss history
     losses = train(cfg, model, train_loader)
 
+    # save the training evolution for later comparison
+    with open('losses.pickle', 'wb') as f:
+        # Pickle the 'data' dictionary using the highest protocol available.
+        pickle.dump(losses, f, pickle.HIGHEST_PROTOCOL)
 
     # print training loss evolution
     print_training_evolution(losses)
