@@ -227,12 +227,12 @@ class STN(nn.Module):
 
         # generate grid for coordinate transformation
         if self.sampling == 'affine':
-            grid = F.affine_grid(theta, x.size())
+            grid = F.affine_grid(theta, x.size(), align_corners=False)
         else:
             grid = affine_diffeo_grid_generator(theta, x.size())
 
         # spatial sampling of points based on grid
-        x = F.grid_sample(x, grid)
+        x = F.grid_sample(x, grid, align_corners=False)
 
         return x
 
