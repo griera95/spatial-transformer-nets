@@ -1,5 +1,7 @@
 defaults:
   - data/mnist
+  - override hydra/job_logging: colorlog
+  - override hydra/hydra_logging: colorlog
 model:
   epochs: 50
   lr: 0.01
