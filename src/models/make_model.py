@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchinfo import summary
+from .sampling import affine_grid_generator, affine_diffeo_grid_generator
 
 
 def cnn_output_dim(input_dim, kernel_size, pooling_size, pooling_stride):
@@ -214,6 +215,9 @@ class STN(nn.Module):
         self.fc_loc[2].weight.data.zero_()
         self.fc_loc[2].bias.data.copy_(torch.tensor([1, 0, 0, 0, 1, 0], dtype=torch.float))
 
+        # store sampling technique
+        self.sampling = cfg.model.stn.sampling
+
     # Spatial transformer network forward function
     def stn(self, x):
         xs = self.localization(x)
@@ -221,8 +225,11 @@ class STN(nn.Module):
         theta = self.fc_loc(xs)
         theta = theta.view(-1, 2, 3)
 
-        # generate affine grid for coordinate transformation
-        grid = F.affine_grid(theta, x.size())
+        # generate grid for coordinate transformation
+        if self.sampling == 'affine':
+            grid = F.affine_grid(theta, x.size())
+        else:
+            grid = affine_diffeo_grid_generator(theta, x.size())
 
         # spatial sampling of points based on grid
         x = F.grid_sample(x, grid)
