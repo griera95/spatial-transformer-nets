@@ -22,8 +22,7 @@ def get_mnist_dataset(partition):
     """Download MNIST dataset (if not already locally available)"""
 
     if partition not in ['train', 'test']:
-        print('argument must be one of either train or test')
-        return
+        raise ValueError('argument must be one of either train or test')
 
 
     return datasets.MNIST(
@@ -51,8 +50,7 @@ def get_cifar10_dataset(partition):
     """Download CIFAR10 dataset (if not already locally available)"""
 
     if partition not in ['train', 'test']:
-        print('argument must be one of either train or test')
-        return
+        raise ValueError('argument must be one of either train or test')
 
 
     return datasets.CIFAR10(

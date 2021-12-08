@@ -4,6 +4,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchinfo import summary
 from .sampling import affine_grid_generator, affine_diffeo_grid_generator
+import logging
+
+log = logging.getLogger('__main__')
+log.setLevel(logging.INFO)
 
 
 def cnn_output_dim(input_dim, kernel_size, pooling_size, pooling_stride):
@@ -255,6 +259,7 @@ def get_model(cfg):
 
     model = STN(cfg).to(device)
 
-    summary(model, (cfg.data.batch_size_train, cfg.data.n_channels, cfg.data.height, cfg.data.width))
+    summ = summary(model, (cfg.data.batch_size_train, cfg.data.n_channels, cfg.data.height, cfg.data.width))
+    log.info(summ)
 
     return model

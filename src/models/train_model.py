@@ -1,6 +1,10 @@
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+import logging
+
+log = logging.getLogger('__main__')
+log.setLevel(logging.INFO)
 
 
 def train(cfg, model, train_loader):
@@ -30,7 +34,7 @@ def train_step(model, train_loader, optimizer, device, epoch):
         loss.backward()
         optimizer.step()
         if batch_idx % 500 == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            log.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
         

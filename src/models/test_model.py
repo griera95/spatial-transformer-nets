@@ -2,6 +2,10 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import confusion_matrix
 import numpy as np
+import logging
+
+log = logging.getLogger('__main__')
+log.setLevel(logging.INFO)
 
 def test(model, test_loader):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -24,7 +28,7 @@ def test(model, test_loader):
 
         test_loss /= len(test_loader.dataset)
         accuracy = correct / len(test_loader.dataset)
-        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'
+        log.info('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'
               .format(test_loss, correct, len(test_loader.dataset), 100. * accuracy))
 
         cm = np.zeros((10, 10), int)

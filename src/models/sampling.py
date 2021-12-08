@@ -9,8 +9,6 @@ def affine_grid_generator(theta, size, align_corners=False):
     
     grid = affine_grid(base_grid, theta, N, H, W)
 
-    print(theta.shape)
-
     return grid.view([N, H, W, 2])
 
 def affine_grid(base_grid, theta, N, H, W):
