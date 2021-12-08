@@ -6,6 +6,7 @@ from torchinfo import summary
 from .sampling import affine_grid_generator, affine_diffeo_grid_generator
 import logging
 
+# setup logger
 log = logging.getLogger('__main__')
 log.setLevel(logging.INFO)
 
