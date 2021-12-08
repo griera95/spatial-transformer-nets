@@ -47,6 +47,7 @@ def main(cfg: DictConfig) -> None:
     # print metrics (confusion matrix, accuracy and loss)
     print_results(cm, accuracy, test_loss)
 
+    return test_loss
 
 
 if __name__ == "__main__":
