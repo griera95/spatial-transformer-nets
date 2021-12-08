@@ -22,3 +22,4 @@ model:
     kernel1_size: 7
     kernel2_size: 5
     lin_size: 32
+    sampling: affine
