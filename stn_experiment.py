@@ -11,6 +11,7 @@ from src.visualization.visualize import print_results, print_training_evolution
 
 @hydra.main(config_path='./config', config_name='config')
 def main(cfg: DictConfig) -> None:
+    # setup logging
     log = logging.getLogger('__main__')
     log.setLevel(logging.INFO)
     
