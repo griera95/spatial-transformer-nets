@@ -42,6 +42,7 @@ def get_mnist_dataloader(cfg: DictConfig, partition, shuffle=True):
         )
 
 def cifar10_transform():
+    """Get CIFAR10 data to tensor format and normalize"""
     return transforms.Compose(
         [transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
