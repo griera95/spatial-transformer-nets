@@ -22,8 +22,6 @@ def print_results(cm, accuracy, test_loss):
     # save image to file
     plt.savefig('confusion_matrix.png')
 
-    #show image
-    plt.show()
 
     plt.close()
 
@@ -47,6 +45,4 @@ def print_training_evolution(losses):
     # save image to file
     plt.savefig('training_evolution.png')
 
-    #show image
-    plt.show()
     plt.close()
