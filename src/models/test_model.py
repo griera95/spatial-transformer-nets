@@ -9,6 +9,7 @@ log = logging.getLogger('__main__')
 log.setLevel(logging.INFO)
 
 def test(model, test_loader):
+    """Evaluate model performance returning confusion matrix, loss and accuracy on test set"""
     # select cuda if available
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
