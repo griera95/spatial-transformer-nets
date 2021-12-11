@@ -10,9 +10,12 @@ To setup the project, clone the repository with
 ```
 git clone <repo address>
 ```
-and `cd` into it. Next, run the setup script:
+and `cd` into it. Next, run the following code:
 ```
-./setup.sh
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
 ## Usage
