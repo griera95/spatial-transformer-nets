@@ -12,7 +12,11 @@ Linux/macOS system with `python3` and `pip`
 4. `source venv/bin/activate`
 5. `pip install -r requirements.txt`
 ## Usage
-To reproduce the 3 experiments performed in the following report, run the bash script `run_experiments.sh` from the root of the project.
+To reproduce the 3 experiments performed in the following report, run the bash script `run_experiments.sh` from the root of the project:
+```
+./run_experiments.sh
+```
+Make sure that it has executable permissions.
 
 For running a particular custom experiment, configure the config.yaml file with the parameters of your liking and run from the project's root
 ```
