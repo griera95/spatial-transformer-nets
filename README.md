@@ -6,12 +6,15 @@ This repository is built to explore Spatial Transformer Networks and some added 
 Linux/macOS system with `python3`, `pip` and `git`.
 
 ### Instructions
-1. Clone the repository locally
-2. `cd` into the repository
-3. `python3 -m venv venv`
-4. `source venv/bin/activate`
-5. `pip install --upgrade pip`
-6. `pip install -r requirements.txt`
+To setup the project, clone the repository with
+```
+git clone <repo address>
+```
+and `cd` into it. Next, run the setup script:
+```
+./setup.sh
+```
+
 ## Usage
 To reproduce the 3 experiments performed in the following report, run the bash script `run_experiments.sh` from the root of the project:
 ```
