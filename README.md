@@ -35,12 +35,12 @@ Any parameter value can be altered from the default directly from the teminal, f
 python run_eval_model.py model.coordconv=true
 ```
 
-Also, for performing a training on the CIFAR10 dataset instead of the default MNIST, run the dollowing:
+Also, for performing a training on the CIFAR10 dataset instead of the default MNIST, run the following:
 ```
 python run_eval_model.py +data=cifar10
 ```
 
-In all cases, results ara stored in the directory `outputs`, in subdirectories named after the date and time of each run. For each run, a log file can also be found named `run_eval_model.log`, as well as the configuration used for the run in the `.hydra` subdirectory.
+In all cases, results are stored in the directory `outputs`, in subdirectories named after the date and time of each run. For each run, a log file can also be found named `run_eval_model.log`, as well as the configuration used for the run in the `.hydra` subdirectory.
  
 ## Results and discussion
 We evaluated the performance of the a standard Spatial Transformer Network by training and evaluating it on the MNIST handwritten digits dataset (http://yann.lecun.com/exdb/mnist/). The training was performed for 50 epochs using the Adam optimizer with a learning rate of 0.01. The mini-batch size chosen was 64. The chosen loss function was log-likelihood, however as the network's last layer is a log-softmax, we are actually computing the categorical crossentropy.
@@ -53,26 +53,27 @@ The following figure contains the three aforementioned metrics:
 ### Addition of CordConv
 As a second experiment, we implemented CoordConv layers and used them in place of the usual convolution layers. They differentiate from ordinary convolutions by incorporating coordinate information of the input pixels, be it the input image or the intermediate feature maps. After performing an analogous training process to the stantard STN, we obtained the following metrics:
 ![results_mnist_cc](figures/results_mnist_cc.png)
-We observe a slight improvement in accuracy, but a 15% reduction in test loss. We hypothesize that including coordinate information in the convolutional layers helps recover information from the original input image after the (possibly severe) deformations performed by the spatial transformer.
+We observe a slight improvement in accuracy, but a 15% reduction in test loss, which is more significant. We hypothesize that including coordinate information in the convolutional layers helps recover information from the original input image after the (possibly severe) deformations performed by the spatial transformer.
 
 In the following figure one can compare the evolution of the training loss for both model architectures:
 
 ![losses_comparison](figures/losses_comparison.png)
 The evolution of training loss is very similar, even when plotting the log of the loss values. This indicates that the model with CoordConv achieves better generalization on the test set.
 
-In order to obtain a confirmation of this performance improvement, we performed the same set of trainings on the CIFAR10 dataset (batch size 32) (https://www.cs.toronto.edu/~kriz/cifar.html), obtaining similar results, but with a more moderate 2% improvement on test loss. For reference, the following metrics were obtained using CoordConv: 
+In order to obtain confirmation of this performance improvement, we performed the same set of trainings on the CIFAR10 dataset (batch size 32) (https://www.cs.toronto.edu/~kriz/cifar.html), obtaining similar results, but with a more moderate 2% improvement on test loss. For reference, the following metrics were obtained using CoordConv: 
 ![results_cifar_cc](figures/results_cifar_cc.png)
 The significantly lower accuracy attained is likely due to the higher difficulty of the dataset and the reduced number of epochs (50), in addition to the simple baseline architecture.
 
 ### Further experiments
-The reference implementation of STN uses affine transformations for the spatial transformer. However, as mentioned in the paper, other types of transformations could theoretically be employed. We wanted to explore if the addition of a different, more suitable transformation, could improve performance. 
+The reference implementation of STN uses affine transformations for the spatial transformer. However, as mentioned in the STN reference paper [1], other types of transformations could theoretically be employed. We wanted to explore if the addition of a different, more suitable transformation, could improve performance.
+
 Inspired by the analysis performed in [4], we implemened affine diffeomorphic transformations, which are affine transformations that are differentiable and have differentiable inverse, which equates to mappings that conserve the original image's topology, in the sense that no kinks, or tears are introduced. In theory, this would smooth out the gradient computations and would prohibit transformations that eliminate some image's information in an irrecoverable manner.
 
 After training the STN on the MNIST dataset with the affine diffeomorphic transformer, instead of the affine one, with the same training parameters, we obtain the following:
 ![results_mnist_diffeo](figures/results_mnist_diffeo.png)
 The results again show an improvement with respect to the baseline model, an even more significant improvement in fact, with over 25% reduction in testing loss. The confusion matrix also shows high sensitivity and specificity for the ten classes.
 
-We have thus hinted at the potential for improvement in performance of STNs by designing more suitable tets of transformations.
+We have thus hinted at the potential for improvement in performance of STNs by designing more suitable transformations spaces.
 
 
 ## References
