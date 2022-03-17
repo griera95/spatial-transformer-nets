@@ -19,6 +19,9 @@ pip install -r requirements.txt
 ```
 The project is now ready to be run.
 
+## Codebase
+The code found in this repository is implemented manually using the information that is provided in the research papers cited below.
+
 ## Usage
 To reproduce the 3 experiments performed in the following report, run the bash script `run_experiments.sh` from the root of the project:
 ```
